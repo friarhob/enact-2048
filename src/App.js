@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import ReactDOM from 'react-dom';
 import "./App.css";
 import Table from "./Table.js";
 
@@ -7,9 +8,14 @@ class App extends Component {
     super(props);
   }
 
+  componentDidMount()
+  {
+    ReactDOM.findDOMNode(this.refs.app).focus();
+  }
+
   render() {
     return (
-      <div className="App">
+      <div ref="app" className="App">
         <Table />
       </div>
     );

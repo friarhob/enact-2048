@@ -49,11 +49,11 @@ class Table extends Component {
 
   componentDidMount() {
     this.setState((state, props) => ({
-      cells: this.addTile(this.addTile(state.cells))
+      cells: this.addTile(this.addTile(state.cells, 4), 2)
     }));
   }
 
-  addTile(original) {
+  addTile(original, value) {
     var spaces = [];
     original.map((row, rowIndex) => {
       row.map((elem, colIndex) => {
@@ -67,7 +67,7 @@ class Table extends Component {
     }
     var pos = spaces[Math.floor(Math.random() * spaces.length)];
     var cells = JSON.parse(JSON.stringify(original));
-    cells[pos[0]][pos[1]] = 2;
+    cells[pos[0]][pos[1]] = value ? value : Math.random() > 0.1 ? 2 : 4;
     return cells;
   }
 
@@ -158,7 +158,7 @@ class Table extends Component {
 
   render() {
     return (
-      <div {...ArrowKeysReact.events} tabIndex="1" className="Table">
+      <div {...ArrowKeysReact.events} tabIndex="0" className="Table">
         <div className={this.cellClass(this.state.cells[0][0])}>
           {this.state.cells[0][0]}
         </div>
