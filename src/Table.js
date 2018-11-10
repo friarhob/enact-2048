@@ -8,10 +8,10 @@ class Table extends Component {
 
     this.state = {
       cells: [
-        [2, 2, 2, 2],
-        [1024, 4, 512, 256],
-        [2048, 8, " ", 8],
-        [" ", " ", 16, 32768]
+        [" ", " ", " ", " "],
+        [" ", " ", " ", " "],
+        [" ", " ", " ", " "],
+        [" ", " ", " ", " "]
       ]
     };
 
@@ -44,6 +44,31 @@ class Table extends Component {
     this.moveRight = this.moveRight.bind(this);
     this.moveDown = this.moveDown.bind(this);
     this.moveUp = this.moveUp.bind(this);
+    this.addTile = this.addTile.bind(this);
+  }
+
+  componentDidMount() {
+    this.setState((state, props) => ({
+      cells: this.addTile(this.addTile(state.cells))
+    }));
+  }
+
+  addTile(original) {
+    var spaces = [];
+    original.map((row, rowIndex) => {
+      row.map((elem, colIndex) => {
+        if (elem === " ") {
+          spaces.push([rowIndex, colIndex]);
+        }
+      });
+    });
+    if (spaces.length === 0) {
+      return original;
+    }
+    var pos = spaces[Math.floor(Math.random() * spaces.length)];
+    var cells = JSON.parse(JSON.stringify(original));
+    cells[pos[0]][pos[1]] = 2;
+    return cells;
   }
 
   rotateCounterClockwise(original) {
@@ -108,6 +133,7 @@ class Table extends Component {
       for (j = 1; j < 4; j++) {
         if (cells[i][j] !== " " && cells[i][j - 1] === cells[i][j]) {
           cells[i][j - 1] *= 2;
+          cells[i][j] = " ";
           for (k = j + 1; k < 4; k++) {
             cells[i][k - 1] = cells[i][k];
             cells[i][k] = " ";
@@ -118,8 +144,7 @@ class Table extends Component {
     }
 
     if (move) {
-      window.alert("Create new tile");
-      return cells;
+      return this.addTile(cells);
     }
     return original;
   }
