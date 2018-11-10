@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import "./Table.css";
+import ArrowKeysReact from "arrow-keys-react";
 
 class Table extends Component {
   constructor(props) {
@@ -7,13 +8,120 @@ class Table extends Component {
 
     this.state = {
       cells: [
-        [32, 2, 64, 128],
+        [2, 2, 2, 2],
         [1024, 4, 512, 256],
-        [2048, " ", 8, " "],
+        [2048, 8, " ", 8],
         [" ", " ", 16, 32768]
       ]
     };
+
+    ArrowKeysReact.config({
+      left: () => {
+        this.setState((state, props) => ({
+          cells: this.moveLeft(state.cells)
+        }));
+      },
+      right: () => {
+        this.setState((state, props) => ({
+          cells: this.moveRight(state.cells)
+        }));
+      },
+      up: () => {
+        this.setState((state, props) => ({
+          cells: this.moveUp(state.cells)
+        }));
+      },
+      down: () => {
+        this.setState((state, props) => ({
+          cells: this.moveDown(state.cells)
+        }));
+      }
+    });
+
     this.cellClass = this.cellClass.bind(this);
+    this.rotateCounterClockwise = this.rotateCounterClockwise.bind(this);
+    this.moveLeft = this.moveLeft.bind(this);
+    this.moveRight = this.moveRight.bind(this);
+    this.moveDown = this.moveDown.bind(this);
+    this.moveUp = this.moveUp.bind(this);
+  }
+
+  rotateCounterClockwise(original) {
+    var cells = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
+
+    for (var i = 0; i < 4; i++) {
+      for (var j = 0; j < 4; j++) {
+        cells[4 - i - 1][j] = original[j][i];
+      }
+    }
+
+    return cells;
+  }
+
+  moveRight(original) {
+    return this.rotateCounterClockwise(
+      this.rotateCounterClockwise(
+        this.moveLeft(
+          this.rotateCounterClockwise(this.rotateCounterClockwise(original))
+        )
+      )
+    );
+  }
+
+  moveUp(original) {
+    return this.rotateCounterClockwise(
+      this.rotateCounterClockwise(
+        this.rotateCounterClockwise(
+          this.moveLeft(this.rotateCounterClockwise(original))
+        )
+      )
+    );
+  }
+
+  moveDown(original) {
+    return this.rotateCounterClockwise(
+      this.moveLeft(
+        this.rotateCounterClockwise(
+          this.rotateCounterClockwise(this.rotateCounterClockwise(original))
+        )
+      )
+    );
+  }
+
+  moveLeft(original) {
+    var move = false;
+    var cells = JSON.parse(JSON.stringify(original));
+    for (var i = 0; i < 4; i++) {
+      for (var j = 1; j < 4; j++) {
+        if (cells[i][j] !== " ") {
+          var k = j;
+          while (cells[i][k - 1] === " ") {
+            cells[i][k - 1] = cells[i][k];
+            cells[i][k] = " ";
+            k--;
+            move = true;
+          }
+        }
+      }
+    }
+    for (i = 0; i < 4; i++) {
+      for (j = 1; j < 4; j++) {
+        if (cells[i][j] !== " " && cells[i][j - 1] === cells[i][j]) {
+          cells[i][j - 1] *= 2;
+          for (k = j + 1; k < 4; k++) {
+            cells[i][k - 1] = cells[i][k];
+            cells[i][k] = " ";
+          }
+          move = true;
+        }
+      }
+    }
+
+    if (move) {
+      window.alert("Create new tile");
+      return cells;
+    }
+    return original;
   }
 
   cellClass(value) {
@@ -25,7 +133,7 @@ class Table extends Component {
 
   render() {
     return (
-      <div className="Table">
+      <div {...ArrowKeysReact.events} tabIndex="1" className="Table">
         <div className={this.cellClass(this.state.cells[0][0])}>
           {this.state.cells[0][0]}
         </div>
